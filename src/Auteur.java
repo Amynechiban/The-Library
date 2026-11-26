@@ -1,16 +1,26 @@
 public class Auteur extends Personne{
-    private int code_auth;
+    private String code_auth;
 
-    public Auteur(String nom, String prenom, int code_auth){
+    public Auteur(String nom, String prenom, String code_auth) {
         super(nom,prenom);
-        this.code_auth = code_auth;
+        setCode_auth(code_auth);
+    }
+    private boolean isInt(String s){
+        if(s == null || s.isEmpty()) return false;
+        try {
+            Integer.parseInt(s);
+            return true;
+        }catch (NumberFormatException e){
+            return false;
+        }
     }
 
-    public int getCode_auth(){
+    public String getCode_auth(){
         return this.code_auth;
     }
 
-    public void setCode_auth(int code_auth) {
+    public void setCode_auth(String code_auth) throws CodeAutException {
+        if(code_auth.length() != 4 || !isInt(code_auth)) throw  new CodeAutException();
         this.code_auth = code_auth;
     }
     @Override
@@ -19,3 +29,4 @@ public class Auteur extends Personne{
         return s;
     }
 }
+

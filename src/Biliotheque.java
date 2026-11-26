@@ -37,37 +37,46 @@ public class Biliotheque {
     }
 
 
-    public Adherent rechercherAdherent(int code){
+    public Adherent rechercherAdherent(int code) throws AdherentInexistantException{
         for (Adherent adherent: this.adherents){
             if (adherent.getCodeAdherent() == code){
                 return adherent;
             }
-        }return null;
+        }throw new AdherentInexistantException();
     }
-    public Livre rechercherLivre(int code){
+    public Livre rechercherLivre(int code) throws LivreInexistantException{
         for (Livre livre: this.livres){
             if (livre.getCode() == code){
                 return livre;
             }
-        }return null;
+        }throw new LivreInexistantException();
     }
     public void ajouterLivre(Livre livre){
-        this.livres.add(livre);
+        try{
+            rechercherLivre(livre.getCode());
+            livre.nbrExpl += 1;
+        }catch (LivreInexistantException e) {this.livres.add(livre);}
+
     }
 
     public void ajouterAdherent(Adherent adherent) {
         this.adherents.add(adherent);
     }
-    public boolean ajouterEmprunt(int codeAdherent, int codeLivre){
-        Adherent adherent = rechercherAdherent(codeAdherent);
-        Livre livre = rechercherLivre(codeLivre);
-        if (adherent != null && livre != null && livre.livreDispo()) {
-            long threeDaysInMs = 3L * 24 * 60 * 60 * 1000;
-            Date current = new Date();
-            Emprunt emprunt = new Emprunt(livre, adherent, new Date(current.getTime() + threeDaysInMs));
-            emprunts.add(emprunt);
-            return true;
-        }else return false;
+    public boolean ajouterEmprunt(int codeAdherent, int codeLivre) throws AjoutEmpruntException{
+        try {
+            Adherent adherent = rechercherAdherent(codeAdherent);
+            Livre livre = rechercherLivre(codeLivre);
+            if (adherent != null && livre != null && livre.livreDispo()) {
+                long threeDaysInMs = 3L * 24 * 60 * 60 * 1000;
+                Date current = new Date();
+                Emprunt emprunt = new Emprunt(livre, adherent, new Date(current.getTime() + threeDaysInMs));
+                emprunts.add(emprunt);
+                return true;
+            }else return false;
+
+        }catch (LivreInexistantException | AdherentInexistantException e1){
+            throw new AjoutEmpruntException(e1.getMessage());
+        }
     }
     public void retourLivre(int codeEmprunt){
         for (Emprunt emprunt: this.emprunts){
